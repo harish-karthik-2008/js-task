@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Virtual Event Registration & Quiz</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    input, button { margin: 5px 0; padding: 8px; width: 300px; }
+    button { background: blue; color: white; border: none; cursor: pointer; }
+    button:hover { background: darkblue; }
+    div { margin-top: 15px; }
+    #quizSection, #resultSection { margin-top: 20px; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+<section>
+  <center>
+    <h1>Virtual Event Registration & Quiz</h1>
+
+    <h2>Registration</h2>
+    <form id="registrationForm">
+      <label>Name:</label>
+      <input type="text" id="name" placeholder="Enter name" required><br>
+      <label>Email:</label>
+      <input type="email" id="email" placeholder="Enter email" required><br>
+      <label>Age:</label>
+      <input type="number" id="age" placeholder="Enter age" required><br>
+      <button type="submit">Register</button>
+    </form>
+    <p id="regError" style="color:red;"></p>
+
+    <div id="quizSection" style="display:none;">
+      <h2>Mini Quiz (3 Random Questions)</h2>
+      <form id="quizForm"></form>
+      <button id="submitQuiz">Submit Quiz</button>
+    </div>
+
+    <div id="resultSection" style="display:none;">
+      <h2>Result</h2>
+      <p id="summary"></p>
+      <h3>Stored JSON:</h3>
+      <pre id="jsonOutput"></pre>
+    </div>
+  </center>
+</section>
+
+<script>
+  const registrationForm = document.getElementById("registrationForm");
+  const regError = document.getElementById("regError");
+  const quizSection = document.getElementById("quizSection");
+  const resultSection = document.getElementById("resultSection");
+  const summary = document.getElementById("summary");
+  const jsonOutput = document.getElementById("jsonOutput");
+  const quizForm = document.getElementById("quizForm");
+  let user = {};
+  let selectedQuestions = [];
+  const allQuestions = [
+    { q: "What is 2 + 2?", options: ["3","4","5"], correct: "4" },
+    { q: "What is 2 * 3?", options: ["5", "6", "7"], correct: "6" },
+    { q: "What is 10 / 5?", options: ["1", "2", "3"], correct: "2" },
+    { q: "What is the capital of France?", options: ["London", "Berlin", "Paris"], correct: "Paris" },
+    { q: "Which planet is known as the Red Planet?", options: ["Mars", "Venus", "Earth"], correct: "Mars" },
+    { q: "What is 5 squared?", options: ["25", "10", "15"], correct: "25" },
+    { q: "Which gas do plants absorb?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen"], correct: "Carbon Dioxide" },
+    { q: "Which number is a even", options: ["3", "4", "5"], correct: "4" },
+    { q: "Which is the largest ocean?", options: ["Atlantic", "Indian", "Pacific"], correct: "Pacific" },
+    { q: "Which number is a prime?", options: ["4", "6", "7"], correct: "7" },
+  ];
+
+  function getRandomQuestions(count) {
+    let shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  }
+
+  function renderQuiz(questions) {
+    quizForm.innerHTML = ""; // clear any previous content
+    questions.forEach((item, index) => {
+      const qId = `q${index}`;
+      const div = document.createElement("div");
+      div.innerHTML = `<p>${index + 1}.${item.q}</p>`+item.options.map(opt => `<label><input type="radio" name="${qId}" value="${opt}">${opt}</label>`).join("<br>");
+      quizForm.appendChild(div);
+    });
+  }
+
+  registrationForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const age = parseInt(document.getElementById("age").value.trim());
+
+    try {
+      if (!name || !email || !age) throw "All fields are required!";
+      if (age < 12) throw "Age must be 12 or above!";
+      user = { name, email, age };
+      regError.textContent = "";
+      selectedQuestions = getRandomQuestions(3);
+      renderQuiz(selectedQuestions);
+
+      registrationForm.style.display = "none";
+      quizSection.style.display = "block";
+
+    } catch (err) {
+      regError.textContent = err;
+    }
+  });
+
+  document.getElementById("submitQuiz").addEventListener("click", function () {
+    let score = 0;
+    let unanswered = false;
+
+    selectedQuestions.forEach((item,index) => {
+      const answer = document.querySelector(`input[name="q${index}"]:checked`)?.value;
+      if (!answer) {
+        unanswered = true;
+        return;
+      }
+      if (answer === item.correct) score++;
+    });
+
+    if (unanswered) {
+      alert("Please answer all questions before submitting.");
+      return;
+    }
+
+    let percentage = (score / selectedQuestions.length) * 100;
+    let grade;
+    if (percentage >= 90) grade = "A";
+    else if (percentage >= 75) grade = "B";
+    else if (percentage >= 50) grade = "C";
+    else grade = "D";
+
+    summary.textContent = "Calculating result...";
+    new Promise(resolve => setTimeout(resolve, 2000)).then(() => {
+      let result = {
+        ...user,
+        score,
+        percentage,
+        grade,
+        timestamp: new Date().toLocaleString()
+      };
+
+      summary.textContent = `Score: ${score}/${selectedQuestions.length} | ${percentage.toFixed(2)}% | Grade: ${grade}`;
+      jsonOutput.textContent = JSON.stringify(result, null, 2);
+      resultSection.style.display = "block";
+    });
+  });
+</script>
+</body>
+</html>
