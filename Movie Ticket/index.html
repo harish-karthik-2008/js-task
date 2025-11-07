@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Ticket Booking</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <h1>Online Ticket Booking</h1>
+  <div class="movie-select">
+    <select id="movie">
+      <option value="150" data-name="2.0">2.0 - ₹150</option>
+      <option value="180" data-name="Beast">Beast - ₹180</option>
+      <option value="200" data-name="Leo">Leo - ₹200</option>
+    </select>
+      <label><h2>No of Seats</h2><select id="count no">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select></label>
+  </div>
+  <div class="container" id="seats"></div>
+  <div class="info">
+    Selected seats: <span id="count">0</span><br>
+    Total Price: ₹<span id="total">0</span>
+  </div>
+  <button class="book" id="book">Book Now</button>
+<script>
+  const container = document.getElementById("seats");
+  const count = document.getElementById("count");
+  const total = document.getElementById("total");
+  const movieSelect = document.getElementById("movie");
+  const bookBtn = document.getElementById("book");
+  const countNo = document.getElementById("count no");
+  for (let i = 1; i <= 40; i++) {
+    const seat = document.createElement("div");
+    seat.classList.add("seat");
+    container.appendChild(seat);
+  }
+  let ticketPrice = +movieSelect.value;
+  const bookings = { "2.0": [], "Beast": [], "Leo": [] };
+  function updateSelectedCount() {
+    const selectedSeats = document.querySelectorAll(".seat.active");
+    const selectedCount = selectedSeats.length;
+    count.textContent = selectedCount;
+    total.textContent = selectedCount * ticketPrice;
+  }
+  function loadBookedSeats(movieName) {
+    const booked = bookings[movieName];
+    const allSeats = document.querySelectorAll(".seat");
+    allSeats.forEach((seat, index) => {
+      seat.classList.remove("booked", "active");
+      if (booked.includes(index)) seat.classList.add("booked");
+    });
+    count.textContent = 0;
+    total.textContent = 0;
+  }
+  container.addEventListener("click", (e) => {
+    if (!e.target.classList.contains("seat") || e.target.classList.contains("booked"))
+      return;
+    const seatElements = [...container.children];
+    const clickedIndex = seatElements.indexOf(e.target);
+    const requiredSeats = parseInt(countNo.value);
+    const movieName = movieSelect.selectedOptions[0].dataset.name;
+    const selectedSeats = document.querySelectorAll(".seat.active");
+    if (
+      selectedSeats.length === requiredSeats &&
+      selectedSeats[0] === e.target
+    ) {
+      selectedSeats.forEach((s) => s.classList.remove("active"));
+      updateSelectedCount();
+      return;
+    }
+    let canBook = true;
+    let selectedGroup = [];
+    for (let i = clickedIndex; i < clickedIndex + requiredSeats; i++) {
+      if (i >= seatElements.length || seatElements[i].classList.contains("booked")) {
+        canBook = false;
+        break;
+      }
+      selectedGroup.push(seatElements[i]);
+    }
+    if (!canBook) {
+      alert("Not enough consecutive seats available!");
+      return;
+    }
+    seatElements.forEach((s) => s.classList.remove("active"));
+    selectedGroup.forEach((s) => s.classList.add("active"));
+    updateSelectedCount();
+  });
+  movieSelect.addEventListener("change", (e) => {
+    ticketPrice = +e.target.value;
+    const movieName = e.target.selectedOptions[0].dataset.name;
+    loadBookedSeats(movieName);
+  });
+  bookBtn.addEventListener("click", () => {
+    const movieName = movieSelect.selectedOptions[0].dataset.name;
+    const selectedSeats = document.querySelectorAll(".seat.active");
+    if (selectedSeats.length === 0) {
+      alert("Please select seats first!");
+      return;
+    }
+    selectedSeats.forEach((seat) => {
+      const seatIndex = [...container.children].indexOf(seat);
+      seat.classList.remove("active");
+      seat.classList.add("booked");
+      bookings[movieName].push(seatIndex);
+    });
+    const payment = prompt("Choose payment method: (upi/gpay)").toLowerCase();
+    if (payment !== "upi" && payment !== "gpay") {
+      alert("Invalid payment method!");
+      return;
+    } else if (payment === "gpay") {
+      let pin = prompt("Enter your pin:");
+      if (pin !== "2412") {
+        alert("Invalid pin");
+        return;
+      }
+    } else if (payment === "upi") {
+      let upi = prompt("Enter your upi id:");
+      let pin = prompt("Enter your pin:");
+      if (upi !== "abc@123" || pin !== "123456") {
+        alert("Invalid UPI or pin");
+        return;
+      }
+    }
+    updateSelectedCount();
+    alert(`Booking successful for ${movieName}!`);
+  });
+  loadBookedSeats(movieSelect.selectedOptions[0].dataset.name);
+</script>
+</body>
+</html>
