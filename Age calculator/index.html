@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Age Checker & Temperature Converter</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="box">
+    <h1>Age Checker</h1>
+    <h3>Enter your Birth Date:</h3>
+    <input type="date" id="birthyear"><br>
+    <h3>Select Calculation Type:</h3>
+    <select id="type" onchange="EndDate()">
+      <option value="till">Till Today</option>
+      <option value="date">Between Two Dates</option>
+    </select>
+    <div id="endDateDiv" style="display:none; margin-top:10px;">
+      <h3>Enter the Second Date:</h3>
+      <input type="date" id="endyear">
+    </div>
+    <br>
+    <button onclick="calculateage()">Calculate Age</button>
+    <h2 id="result"></h2>
+  </div>
+  <hr>
+  <div class="box">
+    <h1>Temperature Converter</h1>
+    <h3>Enter Temperature:</h3>
+    <input type="number" id="tempInput" placeholder="Enter value"><br>
+    <h3>From:</h3>
+    <select id="fromUnit">
+      <option value="C">Celsius (°C)</option>
+      <option value="F">Fahrenheit (°F)</option>
+      <option value="K">Kelvin (K)</option>
+    </select>
+    <h3>To:</h3>
+    <select id="toUnit">
+      <option value="C">Celsius (°C)</option>
+      <option value="F">Fahrenheit (°F)</option>
+      <option value="K">Kelvin (K)</option>
+    </select>
+    <br>
+    <button onclick="convertTemp()">Convert</button>
+    <h2 id="tempResult"></h2>
+  </div>
+  <script>
+
+
+    function EndDate() {
+      const type = document.getElementById("type").value;
+      const endDiv = document.getElementById("endDateDiv");
+      endDiv.style.display = type === "date" ? "block" : "none";
+    }
+    function calculateage() {
+      const birthInput = document.getElementById("birthyear").value;
+      const type = document.getElementById("type").value;
+      const result = document.getElementById("result");
+      if (!birthInput) {
+        alert("Please select your birth date!");
+        return;
+      }
+      const birth = new Date(birthInput);
+      let endDate;
+      if (type === "till") {
+        endDate = new Date();
+      } else {
+        const endInput = document.getElementById("endyear").value;
+        if (!endInput) {
+          alert("Please select the second date!");
+          return;
+        }
+        endDate = new Date(endInput);
+      }
+      if (endDate < birth) {
+        alert("Second date must be after birth date!");
+        return;
+      }
+      // birth - 29-03-2007
+      // end - 15-11-2025
+
+      let year = endDate.getFullYear() - birth.getFullYear();
+      let month = endDate.getMonth() - birth.getMonth();
+      let day = endDate.getDate() - birth.getDate();
+      if (day < 0) {
+        const prevMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 0);
+        console.log(prevMonth.getDate()) // 31
+        day += prevMonth.getDate();
+        month--;
+      }
+      if (month < 0) {
+        month += 12;
+        year--;
+      }
+      result.innerHTML = `You are ${year} years, ${month} months, and ${day} days old.`;
+    }
+    function convertTemp() {
+      const tempValue = parseFloat(document.getElementById("tempInput").value);
+      const from = document.getElementById("fromUnit").value;
+      const to = document.getElementById("toUnit").value;
+      const output = document.getElementById("tempResult");
+      if (isNaN(tempValue)) {
+        alert("Please enter a temperature value!");
+        return;
+      }
+      let result;
+      let celsius;
+      if (from === "C") celsius = tempValue;
+      else if (from === "F") celsius = (tempValue - 32) * 5 / 9;
+      else if (from === "K") celsius = tempValue - 273.15;
+      if (to === "C") result = celsius;
+      else if (to === "F") result = (celsius * 9 / 5) + 32;
+      else if (to === "K") result = celsius + 273.15;
+      output.innerHTML = `${tempValue}°${from} = ${result.toFixed(2)}°${to}`;
+    }
+  </script>
+
+</body>
+</html
