@@ -1,0 +1,61 @@
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: rgb(247, 211, 211);
+      text-align: center;
+      margin: 0;
+      padding: 40px 20px;
+      color: #222;
+    }
+
+    h1 {
+      color: lightcoral;
+      margin-bottom: 10px;
+    }
+
+    h2, h3 {
+      color: #333;
+    }
+
+    input, select, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 8px;
+      border-radius: 8px;
+      border: 1px solid #aaa;
+    }
+
+    input[type="date"], input[type="number"], select {
+      width: 220px;
+    }
+
+    button {
+      background-color: lightcoral;
+      color: white;
+      border: none;
+    }
+
+    button:hover {
+      background-color: coral;
+    }
+
+    #result, #tempResult {
+      margin-top: 20px;
+      color: lightcoral;
+      font-weight: bold;
+    }
+
+    hr {
+      border: 0;
+      border-top: 2px solid #ccc;
+      width: 70%;
+      margin: 60px auto;
+    }
+
+    .box {
+      background-color: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-radius: 16px;
+      padding: 30px;
+      margin: 30px auto;
+      max-width: 500px;
+    }
